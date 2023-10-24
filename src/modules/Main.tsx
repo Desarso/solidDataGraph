@@ -1,6 +1,7 @@
 import { onMount } from "solid-js";
 import { DataTable } from "../classes/DataTable";
 import "../styles.css";
+import { DataManager } from "../classes/DataManager";
 type Props = {};
 
 declare global {
@@ -12,7 +13,7 @@ declare global {
 function Main({}: Props) {
   onMount(() => {
     window.DataTable = DataTable;
-    DataTable.generateUsers(1000);
+    DataManager.constructorDataTable();
   });
   return (
     <>

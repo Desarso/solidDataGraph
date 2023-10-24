@@ -1,0 +1,17 @@
+needs to auto adjust to fit all the data correctly on mount
+must be open to change all styles from js interface in a simple way;
+
+must save it's state to local storage
+aka: columns widths; sorting states,
+it should remember the sizes by the field names
+
+
+it must be given a unique field, that is passed to it consistently;
+
+- live server data fetching,
+-lazy loading and unloading of rows and columns, only keeping a maxiumu of around 400 rows
+-the user manages a data window, I fetch in that windows.
+-only manage a large amount of elements in a certain window.
+-data is fetched in groups of 100 hundred.
+-I keep copies of the neccesary windows to switch back and forth.
+-window tells me which row I am on. Keep a buffer which is why I have 400

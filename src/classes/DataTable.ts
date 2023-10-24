@@ -7,25 +7,30 @@ export class DataTable {
   static columnWidths: number[] = [];
   static maps: Map<any, any[]> = new Map<any, any[]>();
   static dataTypeMap: Map<string, string> = new Map<string, string>();
+  static index: number = 0;
 
-  static generateUsers(amount: number): string {
+  static createTableFromGenerated(amount: number): any {
     let users = Helper.generateUsers(amount);
-    DataTable.generateDataTable(users);
-    return users;
+    let table = DataTable.generateDataTable(JSON.stringify(users));
+    return table;
   }
 
-  static generateDataTable(Data: string): void {
+  static generateDataTable(
+    Data: string,
+    className: string = "data-table"
+  ): HTMLDivElement {
+    let newDataTable = document.createElement("div");
+    DataTable.appendToBody(newDataTable);
+    newDataTable.classList.add(className);
     DataTable.dataFieldsSet = DataTable.getDataSet(Data);
     DataTable.inferFieldTypes(Data);
-    console.log(DataTable.dataTypeMap);
     let header = DataTable.generateHeader(DataTable.getDataSet(Data));
-    DataTable.appendToBody(header);
+    newDataTable.appendChild(header);
     let generateRows = DataTable.generateRows(Data);
-    console.log(header);
-    DataTable.appendToBody(generateRows);
-    DataTable.adjustColumnWidths();
-
+    newDataTable.appendChild(generateRows);
     DataTable.maps = DataTable.generateMapFromDataFieldToElements();
+    DataTable.adjustColumnWidths();
+    return newDataTable;
   }
 
   static inferFieldTypes(Data: string): Map<string, string> {
@@ -55,9 +60,11 @@ export class DataTable {
       let innerWrapper = document.createElement("div");
       let arrow = document.createElement("div");
       arrow.setAttribute("data-field", field);
+      arrow.setAttribute("sort-state", "none");
       fieldDiv.classList.add("field");
       innerWrapper.classList.add("inner-wrapper");
       fieldHolder.classList.add("field-holder");
+      fieldHolder.setAttribute("data-field", field);
       border.classList.add("border");
       //add datafield type
       border.setAttribute("data-field", field);
@@ -80,7 +87,20 @@ export class DataTable {
     return header;
   }
 
-  static adjustColumnWidths(): void {}
+  static adjustColumnWidths(): void {
+    //for each data field, check each column
+    //if any field is wider than the column, set the column width to the field width
+    for (let field of DataTable.dataFieldsSet) {
+      let elements = DataTable.maps.get(field);
+      let maxWidth = 0;
+      for (let element of elements) {
+        if (element.clientWidth > maxWidth) {
+          maxWidth = element.clientWidth;
+        }
+      }
+      DataTable.changeColumnWidth(field, maxWidth);
+    }
+  }
 
   static generateRows(Data: string): HTMLDivElement {
     let usersArray = JSON.parse(Data);
@@ -90,6 +110,8 @@ export class DataTable {
     for (let user of usersArray) {
       let row = document.createElement("div");
       row.classList.add("row");
+      row.setAttribute("data-index", DataTable.index.toString());
+      DataTable.index++;
       let index = 0;
       for (let key in user) {
         let field = document.createElement("div");
@@ -108,8 +130,76 @@ export class DataTable {
     return rows;
   }
 
+  static pushRow(Data: string): void {
+    let usersArray = JSON.parse(Data);
+    let rows = document.querySelector(".rows");
+    let widths = DataTable.getColumnWidths();
+    for (let user of usersArray) {
+      let row = document.createElement("div");
+      row.classList.add("row");
+      row.setAttribute("data-index", DataTable.index.toString());
+      DataTable.index++;
+      let index = 0;
+      for (let key in user) {
+        let field = document.createElement("div");
+        let innerWrapper = document.createElement("div");
+        field.classList.add("field");
+        field.classList.add(key);
+        innerWrapper.classList.add(DataTable.dataTypeMap.get(key) as string);
+        field.style.width = widths[index] + "px";
+        innerWrapper.innerText = user[key];
+        field.appendChild(innerWrapper);
+        row.appendChild(field);
+        index++;
+      }
+      rows?.appendChild(row);
+    }
+  }
+
+  static unshiftRow(Data: string): void {
+    let usersArray = JSON.parse(Data);
+    let rows = document.querySelector(".rows");
+    let widths = DataTable.getColumnWidths();
+    for (let user of usersArray) {
+      let row = document.createElement("div");
+      row.classList.add("row");
+      row.setAttribute("data-index", DataTable.index.toString());
+      DataTable.index++;
+      let index = 0;
+      for (let key in user) {
+        let field = document.createElement("div");
+        let innerWrapper = document.createElement("div");
+        field.classList.add("field");
+        field.classList.add(key);
+        innerWrapper.classList.add(DataTable.dataTypeMap.get(key) as string);
+        field.style.width = widths[index] + "px";
+        innerWrapper.innerText = user[key];
+        field.appendChild(innerWrapper);
+        row.appendChild(field);
+        index++;
+      }
+      rows?.prepend(row);
+    }
+  }
+
+  static popRow(): void {
+    let rows = document.querySelectorAll(".row");
+    let lastRow = rows[rows.length - 1];
+    lastRow.remove();
+  }
+
+  static shiftRow(): void {
+    let rows = document.querySelectorAll(".row");
+    let firstRow = rows[0];
+    firstRow.remove();
+  }
+
   static changeColumnWidth(field: string, width: number) {
     let elements = DataTable.maps.get(field);
+    //also change the width of the header
+    let headerElement = document.querySelector("[data-field=" + field + "]");
+    headerElement?.setAttribute("style", "width:" + width + "px");
+
     for (let element of elements) {
       element.style.width = width + "px";
     }
@@ -178,7 +268,6 @@ export class DataTable {
       previousMousePosition.x = e.clientX;
       previousMousePosition.y = e.clientY;
       previousWidth = fieldDiv.clientWidth;
-      console.log("previousWidth", previousWidth);
     });
 
     document.addEventListener("pointerup", () => {
@@ -192,13 +281,12 @@ export class DataTable {
           fieldWidth
         );
       }
+      DataTable.adjustColumnWidths();
       DataTable.getColumnWidths();
     });
   }
 
   static createArrowListener(arrow: HTMLDivElement): void {
-    let states = ["asc", "desc", "none"];
-    let state = "none";
     let defaultRows = document.querySelectorAll(".row");
 
     arrow.addEventListener("click", () => {
@@ -207,25 +295,27 @@ export class DataTable {
       for (let arrow of arrows) {
         arrow.classList.remove("active");
         arrow.classList.remove("active-reverse");
+        arrow.setAttribute("sort-state", "none");
         arrow.style.transform = "rotate(0deg)";
       }
       let field = arrow.getAttribute("data-field");
+      let state = arrow.getAttribute("sort-state");
       if (field) {
         if (state === "none") {
           arrow.classList.add("active");
           //rotate arrow 180 degrees
           arrow.style.transform = "rotate(180deg)";
-          state = "asc";
+          arrow.setAttribute("sort-state", "asc");
           DataTable.sortByField(field, state);
         } else if (state === "asc") {
           arrow.classList.remove("active");
           arrow.classList.add("active-reverse");
-          state = "desc";
+          arrow.setAttribute("sort-state", "desc");
           arrow.style.transform = "rotate(0deg)";
           DataTable.sortByField(field, state);
         } else if (state === "desc") {
           arrow.classList.remove("active-reverse");
-          state = "none";
+          arrow.setAttribute("sort-state", "none");
 
           for (let row of defaultRows) {
             row.remove();

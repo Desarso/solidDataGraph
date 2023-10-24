@@ -20,93 +20,114 @@
   box-shadow: inset 0px 0px 20px 5px #000000 !important;
 }
 
-.header {
-  display: flex;
-  position: -webkit-sticky;
-  position: sticky;
-  top: 0;
-  justify-content: space-between;
-  align-items: center;
-  height: 40px;
-  width: fit-content;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #e0e0e0;
-  //rigth border
-  .field {
+.data-table {
+  width: min-content;
+  height: 90vh;
+  overflow: auto;
+  //hide scrollbar
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  // &::-webkit-scrollbar {
+  //   width: 0px;
+  //   background: transparent; /* make scrollbar transparent */
+  // }
+  .header {
     display: flex;
-    position: relative;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    margin-right: 3px;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    height: 50%;
-    padding: 0 10px;
-    font-size: large;
-    font-weight: bold;
+    height: 40px;
+    width: fit-content;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+    //rigth border
+    .field {
+      display: flex;
+      position: relative;
+      align-items: center;
+      justify-content: center;
+      min-width: fit-content;
+      height: 50%;
+      padding: 0 10px;
+      font-size: large;
+      font-weight: bold;
 
-    border-right: 1px solid #e0e0e0;
-    //transition background-color
-    transition: background-color 0.2s ease-in-out;
-    .inner-wrapper {
-      margin-right: 20px;
-    }
-    .arrow {
-      position: absolute;
-      right: 3px;
-      width: 15px;
-      height: 15px;
-      margin-right: 2px;
-      color: #00000080;
-      border-radius: 20px;
-      padding: 3px;
-      transition: background-color 0.2s ease-in-out;
-      &:hover {
-        background-color: #e0e0e0;
-      }
-      &.active {
-        background-color: #4985eb71;
-      }
-      &.active-reverse {
-        background-color: #4985eb71;
-      }
-    }
-
-    .field-holder {
-      min-width: fit-content !important;
-    }
-    .border {
-      position: absolute;
-      right: -3px;
-      float: right;
-      width: 6px;
-      height: 120%;
-      border-radius: 50px;
+      border-right: 1px solid #e0e0e0;
       //transition background-color
       transition: background-color 0.2s ease-in-out;
-      &:hover {
-        background-color: #2590b7;
+      .inner-wrapper {
+        margin-right: 20px;
       }
-    }
-  }
-}
-.rows {
-  width: fit-content;
-  .row {
-    display: flex;
-    .field {
-      min-width: fit-content;
-      .number {
-        display: flex;
-        justify-content: flex-end;
-        margin-right: 10px;
+      .arrow {
+        position: absolute;
+        right: 3px;
+        width: 15px;
+        height: 15px;
+        margin-right: 2px;
+        color: #00000080;
+        border-radius: 20px;
+        svg {
+          stroke-width: 3;
+        }
+        padding: 3px;
+        transition: background-color 0.2s ease-in-out;
+        &:hover {
+          background-color: #e0e0e0;
+        }
+        &.active {
+          background-color: #4985eb71;
+        }
+        &.active-reverse {
+          background-color: #4985eb71;
+        }
       }
 
-      .string {
-        display: flex;
-        justify-content: flex-start;
+      .field-holder {
+        min-width: fit-content !important;
+      }
+      .border {
+        position: absolute;
+        right: -3px;
+        float: right;
+        width: 6px;
+        height: 120%;
+        border-radius: 50px;
+        //transition background-color
+        transition: background-color 0.2s ease-in-out;
+        &:hover {
+          background-color: #2590b7;
+        }
       }
     }
-    //make them align right
   }
-  .row:nth-child(odd) {
-    background-color: #f5f5f5;
+  .rows {
+    width: fit-content;
+    .row {
+      display: flex;
+      .field {
+        min-width: fit-content;
+        div {
+          margin: 0 10px;
+        }
+
+        .number {
+          display: flex;
+          justify-content: flex-end;
+          margin-right: 10px;
+        }
+
+        .string {
+          display: flex;
+          justify-content: flex-start;
+        }
+      }
+      //make them align right
+    }
+    .row:nth-child(odd) {
+      background-color: #f5f5f5;
+    }
   }
 }

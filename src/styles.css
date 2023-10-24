@@ -19,11 +19,19 @@
   box-shadow: inset 0px 0px 20px 5px #000000 !important;
 }
 
-.header {
+.data-table {
+  width: min-content;
+  height: 90vh;
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.data-table .header {
   display: flex;
   position: -webkit-sticky;
   position: sticky;
   top: 0;
+  margin-right: 3px;
   justify-content: space-between;
   align-items: center;
   height: 40px;
@@ -31,11 +39,12 @@
   background-color: #f5f5f5;
   border-bottom: 1px solid #e0e0e0;
 }
-.header .field {
+.data-table .header .field {
   display: flex;
   position: relative;
   align-items: center;
   justify-content: center;
+  min-width: fit-content;
   height: 50%;
   padding: 0 10px;
   font-size: large;
@@ -43,10 +52,10 @@
   border-right: 1px solid #e0e0e0;
   transition: background-color 0.2s ease-in-out;
 }
-.header .field .inner-wrapper {
+.data-table .header .field .inner-wrapper {
   margin-right: 20px;
 }
-.header .field .arrow {
+.data-table .header .field .arrow {
   position: absolute;
   right: 3px;
   width: 15px;
@@ -57,19 +66,22 @@
   padding: 3px;
   transition: background-color 0.2s ease-in-out;
 }
-.header .field .arrow:hover {
+.data-table .header .field .arrow svg {
+  stroke-width: 3;
+}
+.data-table .header .field .arrow:hover {
   background-color: #e0e0e0;
 }
-.header .field .arrow.active {
+.data-table .header .field .arrow.active {
   background-color: rgba(73, 133, 235, 0.4431372549);
 }
-.header .field .arrow.active-reverse {
+.data-table .header .field .arrow.active-reverse {
   background-color: rgba(73, 133, 235, 0.4431372549);
 }
-.header .field .field-holder {
+.data-table .header .field .field-holder {
   min-width: fit-content !important;
 }
-.header .field .border {
+.data-table .header .field .border {
   position: absolute;
   right: -3px;
   float: right;
@@ -78,28 +90,30 @@
   border-radius: 50px;
   transition: background-color 0.2s ease-in-out;
 }
-.header .field .border:hover {
+.data-table .header .field .border:hover {
   background-color: #2590b7;
 }
-
-.rows {
+.data-table .rows {
   width: fit-content;
 }
-.rows .row {
+.data-table .rows .row {
   display: flex;
 }
-.rows .row .field {
+.data-table .rows .row .field {
   min-width: fit-content;
 }
-.rows .row .field .number {
+.data-table .rows .row .field div {
+  margin: 0 10px;
+}
+.data-table .rows .row .field .number {
   display: flex;
   justify-content: flex-end;
   margin-right: 10px;
 }
-.rows .row .field .string {
+.data-table .rows .row .field .string {
   display: flex;
   justify-content: flex-start;
 }
-.rows .row:nth-child(odd) {
+.data-table .rows .row:nth-child(odd) {
   background-color: #f5f5f5;
 }/*# sourceMappingURL=styles.css.map */
