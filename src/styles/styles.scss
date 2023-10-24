@@ -1,0 +1,112 @@
+.draggable {
+  width: 20px;
+  height: 20px;
+  background-color: red;
+}
+
+.droppable {
+  width: 100px;
+  height: 100px;
+  background-color: blue;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  //animate shadow
+  transition: box-shadow 0.1s ease-in-out;
+}
+
+.shadow {
+  box-shadow: inset 0px 0px 20px 5px #000000 !important;
+}
+
+.header {
+  display: flex;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  justify-content: space-between;
+  align-items: center;
+  height: 40px;
+  width: fit-content;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+  //rigth border
+  .field {
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    height: 50%;
+    padding: 0 10px;
+    font-size: large;
+    font-weight: bold;
+
+    border-right: 1px solid #e0e0e0;
+    //transition background-color
+    transition: background-color 0.2s ease-in-out;
+    .inner-wrapper {
+      margin-right: 20px;
+    }
+    .arrow {
+      position: absolute;
+      right: 3px;
+      width: 15px;
+      height: 15px;
+      margin-right: 2px;
+      color: #00000080;
+      border-radius: 20px;
+      padding: 3px;
+      transition: background-color 0.2s ease-in-out;
+      &:hover {
+        background-color: #e0e0e0;
+      }
+      &.active {
+        background-color: #4985eb71;
+      }
+      &.active-reverse {
+        background-color: #4985eb71;
+      }
+    }
+
+    .field-holder {
+      min-width: fit-content !important;
+    }
+    .border {
+      position: absolute;
+      right: -3px;
+      float: right;
+      width: 6px;
+      height: 120%;
+      border-radius: 50px;
+      //transition background-color
+      transition: background-color 0.2s ease-in-out;
+      &:hover {
+        background-color: #2590b7;
+      }
+    }
+  }
+}
+.rows {
+  width: fit-content;
+  .row {
+    display: flex;
+    .field {
+      min-width: fit-content;
+      .number {
+        display: flex;
+        justify-content: flex-end;
+        margin-right: 10px;
+      }
+
+      .string {
+        display: flex;
+        justify-content: flex-start;
+      }
+    }
+    //make them align right
+  }
+  .row:nth-child(odd) {
+    background-color: #f5f5f5;
+  }
+}
