@@ -54,8 +54,9 @@
       padding: 0 10px;
       font-size: large;
       font-weight: bold;
+      border-right: black 1px solid;
 
-      border-right: 1px solid #e0e0e0;
+      // outline-: 1px solid #e0e0e0;
       //transition background-color
       transition: background-color 0.2s ease-in-out;
       .inner-wrapper {
@@ -92,13 +93,19 @@
         position: absolute;
         right: -3px;
         float: right;
-        width: 6px;
-        height: 120%;
+        // min-width: 1px !important;
+        // max-width: 1px !important;
+        height: 100%;
+        z-index: 100;
+        border: solid #ffffff00 3px;
+        margin: .1px;
         border-radius: 50px;
+        background-color: #ffffff00;
         //transition background-color
-        transition: background-color 0.2s ease-in-out;
+        transition: all .2s ease-in-out;
         &:hover {
           background-color: #2590b7;
+          border-color: #2590b7;
         }
       }
     }

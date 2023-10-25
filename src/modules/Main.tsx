@@ -7,12 +7,14 @@ type Props = {};
 declare global {
   interface Window {
     DataTable: typeof DataTable;
+    DataManager: typeof DataManager;
   }
 }
 
 function Main({}: Props) {
   onMount(() => {
     window.DataTable = DataTable;
+    window.DataManager = DataManager;
     DataManager.constructorDataTable();
   });
   return (

@@ -15,63 +15,134 @@ import { Helper } from "./Helper";
 
 export class DataManager {
   static contextWindows: any[] = [];
-  static currentContextWindow: number = 0;
-  static contextWindowTop: number = 0;
-  static contextWindowBottom: number = 99;
-  static middleRow: number = 49;
-
-  static mockServer: any[] = Helper.generateUsers(100000);
-  static currentRow: number = 0;
-
-  static adjuster: number = 0;
+  static mockServer: any[] = Helper.generateUsers(1000);
 
   static constructorDataTable() {
     let data = DataManager.fetchMock(1);
     let dataTable = DataTable.generateDataTable(JSON.stringify(data));
     DataManager.fetchContextWindows(0);
-    DataManager.middleRow = 49;
     DataManager.createScrollListeners(dataTable);
   }
 
   static createScrollListeners(dataTable: HTMLDivElement) {
-    let previousRowNumber = 0;
-    console.log(dataTable);
+    //I want to know exactly what position I am in when scrolling
     dataTable.addEventListener("scroll", (e) => {
-      //figure out what row is at the top of the div
-      let rowHeight = dataTable.querySelector(".row")?.clientHeight;
-      let rowNumber = Math.floor(dataTable.scrollTop / rowHeight!);
+      let middleRow = DataManager.getMiddleRow(dataTable);
+      let rows = Array.from(dataTable.querySelectorAll(".row"));
+      let lowestRow = middleRow - 50;
+      let highestRow = middleRow + 50;
+      let lowestRowInDOM = parseInt(rows[0].getAttribute("data-index")!);
+      let highestRowInDOM = parseInt(
+        rows[rows.length - 1].getAttribute("data-index")!
+      );
+      console.log("lowest row", lowestRow);
+      console.log("highest row", highestRow);
+      console.log("lowest row in DOM", lowestRowInDOM);
+      console.log("highest row in DOM", highestRowInDOM);
+      //I need to make sure to always have a buffer of 50 rows in either direction;
 
-      //going down
-      if (rowNumber > previousRowNumber && rowNumber > 50) {
-        console.log("going down");
-        DataManager.contextWindowTop = rowNumber - 50 + DataManager.adjuster;
-        DataManager.middleRow = rowNumber + DataManager.adjuster;
-        DataManager.contextWindowBottom = rowNumber + 49 + DataManager.adjuster;
-        console.log("top", DataManager.contextWindowTop);
-        console.log("middle", DataManager.middleRow);
-        console.log("bottom", DataManager.contextWindowBottom);
-        // DataManager.adjuster++;
-        // DataTable.shiftRow();
-        //remove the first context window
-
-        //going up
-      } else if (rowNumber < previousRowNumber && rowNumber > 50) {
-        console.log("going up");
-        DataManager.contextWindowTop = rowNumber - 50 + DataManager.adjuster;
-        DataManager.middleRow = rowNumber + DataManager.adjuster;
-        DataManager.contextWindowBottom = rowNumber + 49 + DataManager.adjuster;
-        // DataManager.currentContextWindow = DataManager.middleRow / 100;
-        console.log("top", DataManager.contextWindowTop);
-        console.log("middle", DataManager.middleRow);
-        console.log("bottom", DataManager.contextWindowBottom);
-        // DataManager.adjuster--;
-        // let currentContextWindow =
-        //   DataManager.contextWindows[DataManager.currentContextWindow];
-        //remove the last context window
+      if (middleRow > 50) {
+        DataManager.adjustRowsAmounts(dataTable, middleRow);
+      } else {
+        //make sure to load all low rows to index 0;
+        DataManager.attachAllBottomRows(dataTable);
       }
-
-      previousRowNumber = rowNumber;
     });
+  }
+
+  static attachAllBottomRows(dataTable: HTMLDivElement) {
+    let rows = Array.from(dataTable.querySelectorAll(".row"));
+    let lowestRow = parseInt(rows[0].getAttribute("data-index")!);
+    console.log("lowest row", lowestRow);
+    if (lowestRow === 0) return;
+    for (let i = lowestRow - 1; i >= 0; i--) {
+      let x = Math.floor(i / 100);
+      let y = i % 100;
+      let row = DataManager.contextWindows[x][y];
+      row = JSON.stringify(row);
+      DataTable.unshiftRow(row);
+    }
+  }
+
+  static adjustRowsAmounts(dataTable: HTMLDivElement, middleRow: number) {
+    let rows = Array.from(dataTable.querySelectorAll(".row"));
+    let lowestRow = middleRow - 50;
+    let highestRow = middleRow + 50;
+    let lowestRowInDOM = parseInt(rows[0].getAttribute("data-index")!);
+    let highestRowInDOM = parseInt(
+      rows[rows.length - 1].getAttribute("data-index")!
+    );
+    console.log("lowest row", lowestRow);
+    console.log("highest row", highestRow);
+    console.log("lowest row in DOM", lowestRowInDOM);
+    console.log("highest row in DOM", highestRowInDOM);
+
+    if (lowestRow === lowestRowInDOM && highestRow === highestRowInDOM) return;
+
+    // if (lowestRow < lowestRowInDOM) {
+    //   //add rows to the top
+    //   for (let i = lowestRowInDOM - 1; i >= lowestRow; i--) {
+    //     let x = Math.floor(i / 100);
+    //     let y = i % 100;
+    //     let row = DataManager.contextWindows[x][y];
+    //     console.log(i);
+    //     row = JSON.stringify(row);
+    //     DataTable.unshiftRow(row);
+    //   }
+    // }
+    // if (lowestRow > lowestRowInDOM) {
+    //   //remove rows from the top
+    //   for (let i = lowestRowInDOM; i < lowestRow; i++) {
+    //     DataTable.shiftRow();
+    //   }
+    // }
+
+    // if (highestRow > highestRowInDOM) {
+    //   //add rows to the bottom
+    //   for (let i = highestRowInDOM + 1; i <= highestRow; i++) {
+    //     let x = Math.floor(i / 100);
+    //     let y = i % 100;
+    //     let row;
+    //     //try catch is for when the highest row is not in the context window
+
+    //     try {
+    //       row = DataManager.contextWindows[x][y];
+    //       row = JSON.stringify(row);
+    //       DataTable.pushRow(row);
+    //       console.log("here");
+    //     } catch (e) {
+    //       console.log(e);
+    //       console.log(x, y);
+    //       break;
+    //     }
+    //   }
+    // }
+    // if (highestRow < highestRowInDOM) {
+    //   //remove rows from the bottom
+    //   for (let i = highestRowInDOM; i > highestRow; i--) {
+    //     DataTable.popRow();
+    //   }
+    // }
+  }
+
+  static getTopRow(dataTable: HTMLDivElement) {
+    let firstRow = dataTable.querySelector(".row")?.getAttribute("data-index");
+    let rowsFromTop = DataManager.rowAmountFromTop(dataTable);
+    let topRow = parseInt(firstRow!) + rowsFromTop;
+    return topRow;
+  }
+
+  static getMiddleRow(dataTable: HTMLDivElement) {
+    let dataTableHeight = dataTable.clientHeight;
+    let rowHeight = dataTable.querySelector(".row")?.clientHeight;
+    let middleRow = Math.floor(dataTableHeight / 2 / rowHeight!);
+    return DataManager.getTopRow(dataTable) + middleRow;
+  }
+
+  static rowAmountFromTop(dataTable: HTMLDivElement) {
+    let rowHeight = dataTable.querySelector(".row")?.clientHeight;
+    let rowNumber = Math.floor(dataTable.scrollTop / rowHeight!);
+    return rowNumber;
   }
 
   static fetchContextWindows(index: number) {
