@@ -194,8 +194,17 @@ export class DataTable {
   //remove from bottom
   static popRow(): void {
     let rows = document.querySelectorAll(".row");
+    try{
+     
     let lastRow = rows[rows.length - 1];
     lastRow.remove();
+    DataTable.index--;
+
+
+    }catch{
+      console.error("tried popping: ",rows.length-1)
+    }
+    
   }
 
   //remove from top

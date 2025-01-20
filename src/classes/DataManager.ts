@@ -12,15 +12,20 @@ import { Helper } from "./Helper";
 //and then keep doing the dynamic adding and removing of divs, to keep the amout of divs in the DOM to less than 100 hundred which is the size of
 //one context window
 //this should also work for manually load data that does not connect to a database
+const PAGE_SIZE = 100;
 
 export class DataManager {
-  static contextWindows: any[] = [];
+  static dataBuffer: any[] = [];
   static mockServer: any[] = Helper.generateUsers(1000);
 
   static constructorDataTable() {
-    let data = DataManager.fetchMock(1);
+    let data = DataManager.fetchMock({
+      forwards: true,
+      start: 0,
+      sorting: "id",
+    });
+    this.dataBuffer.push(...data);
     let dataTable = DataTable.generateDataTable(JSON.stringify(data));
-    DataManager.fetchContextWindows(0);
     DataManager.createScrollListeners(dataTable);
   }
 
@@ -28,101 +33,102 @@ export class DataManager {
     //I want to know exactly what position I am in when scrolling
     dataTable.addEventListener("scroll", (e) => {
       let middleRow = DataManager.getMiddleRow(dataTable);
-      let rows = Array.from(dataTable.querySelectorAll(".row"));
-      let lowestRow = middleRow - 50;
-      let highestRow = middleRow + 50;
-      let lowestRowInDOM = parseInt(rows[0].getAttribute("data-index")!);
-      let highestRowInDOM = parseInt(
-        rows[rows.length - 1].getAttribute("data-index")!
-      );
-      console.log("lowest row", lowestRow);
-      console.log("highest row", highestRow);
-      console.log("lowest row in DOM", lowestRowInDOM);
-      console.log("highest row in DOM", highestRowInDOM);
-      //I need to make sure to always have a buffer of 50 rows in either direction;
-
-      if (middleRow > 50) {
-        DataManager.adjustRowsAmounts(dataTable, middleRow);
-      } else {
-        //make sure to load all low rows to index 0;
-        DataManager.attachAllBottomRows(dataTable);
-      }
+      DataManager.adjustRowsAmounts(dataTable, middleRow);
     });
-  }
-
-  static attachAllBottomRows(dataTable: HTMLDivElement) {
-    let rows = Array.from(dataTable.querySelectorAll(".row"));
-    let lowestRow = parseInt(rows[0].getAttribute("data-index")!);
-    console.log("lowest row", lowestRow);
-    if (lowestRow === 0) return;
-    for (let i = lowestRow - 1; i >= 0; i--) {
-      let x = Math.floor(i / 100);
-      let y = i % 100;
-      let row = DataManager.contextWindows[x][y];
-      row = JSON.stringify(row);
-      DataTable.unshiftRow(row);
-    }
   }
 
   static adjustRowsAmounts(dataTable: HTMLDivElement, middleRow: number) {
     let rows = Array.from(dataTable.querySelectorAll(".row"));
-    let lowestRow = middleRow - 50;
-    let highestRow = middleRow + 50;
+    let lowestRow = Math.max(middleRow - 30, 0);
+    let highestRow = Math.min(middleRow + 30, this.dataBuffer.length);
+
+
     let lowestRowInDOM = parseInt(rows[0].getAttribute("data-index")!);
-    let highestRowInDOM = parseInt(
-      rows[rows.length - 1].getAttribute("data-index")!
-    );
-    console.log("lowest row", lowestRow);
-    console.log("highest row", highestRow);
-    console.log("lowest row in DOM", lowestRowInDOM);
-    console.log("highest row in DOM", highestRowInDOM);
+    let highestRowInDOM = parseInt(rows[rows.length - 1].getAttribute("data-index")!);
+
+
+    console.log("highestRowInDOM: ", highestRowInDOM)
+    console.log("highestRow: ", highestRow)
+    // console.log(this.dataBuffer)
 
     if (lowestRow === lowestRowInDOM && highestRow === highestRowInDOM) return;
 
-    // if (lowestRow < lowestRowInDOM) {
-    //   //add rows to the top
-    //   for (let i = lowestRowInDOM - 1; i >= lowestRow; i--) {
-    //     let x = Math.floor(i / 100);
-    //     let y = i % 100;
-    //     let row = DataManager.contextWindows[x][y];
-    //     console.log(i);
-    //     row = JSON.stringify(row);
-    //     DataTable.unshiftRow(row);
-    //   }
-    // }
-    // if (lowestRow > lowestRowInDOM) {
-    //   //remove rows from the top
-    //   for (let i = lowestRowInDOM; i < lowestRow; i++) {
-    //     DataTable.shiftRow();
-    //   }
-    // }
+    if (lowestRow < lowestRowInDOM) {
+      console.log("lowestRow < lowestRowInDOM");
+      for (let i = lowestRowInDOM-1; i >= lowestRow; i--) {
+        try{
+          let row = DataManager.dataBuffer[i];
+          row = JSON.stringify(row);
+          DataTable.unshiftRow(row);
+        }catch{
+          console.error("error 1: i=",i," lowestRowInDom: ", lowestRowInDOM, " lowestRow:", lowestRow)
+        }
+       
+      }
+    }
+    if (lowestRow > lowestRowInDOM) {
+     
+        for (let i = lowestRowInDOM; i < lowestRow; i++) {
+          try{
+          console.log("shifting")
+          DataTable.shiftRow();
+        }catch{
+          console.error("error 2: i=",i," lowestRowInDom: ", lowestRowInDOM, " lowestRow:", lowestRow)
+        }
+        }
+     
+      //remove rows from the top
+     
+    }
 
-    // if (highestRow > highestRowInDOM) {
-    //   //add rows to the bottom
-    //   for (let i = highestRowInDOM + 1; i <= highestRow; i++) {
-    //     let x = Math.floor(i / 100);
-    //     let y = i % 100;
-    //     let row;
-    //     //try catch is for when the highest row is not in the context window
+    if (highestRow > highestRowInDOM && highestRow >= 0) {
+      // console.log("highestRow > highestRowInDOM");
 
-    //     try {
-    //       row = DataManager.contextWindows[x][y];
-    //       row = JSON.stringify(row);
-    //       DataTable.pushRow(row);
-    //       console.log("here");
-    //     } catch (e) {
-    //       console.log(e);
-    //       console.log(x, y);
-    //       break;
-    //     }
-    //   }
-    // }
-    // if (highestRow < highestRowInDOM) {
-    //   //remove rows from the bottom
-    //   for (let i = highestRowInDOM; i > highestRow; i--) {
-    //     DataTable.popRow();
-    //   }
-    // }
+      
+      //add rows to the bottom
+      for (let i = highestRowInDOM + 1; i <= highestRow; i++) {
+        let row;
+
+        if (!DataManager.dataBuffer[i]) {
+          console.log("here fetching data", DataManager.dataBuffer.length);
+          let newData = DataManager.fetchMock({
+            forwards: true,
+            start: i,
+            sorting: "",
+            amount: 40,
+          });
+          DataManager.dataBuffer.push(...newData);
+        }
+       
+        if(!DataManager.dataBuffer[i]){
+          continue
+        }
+
+        try {
+          row = DataManager.dataBuffer[i];
+          row = JSON.stringify(row);
+          // console.log("push")
+          DataTable.pushRow(row);
+        } catch (e) {
+          console.error("error 3: i=",i," highestRowInDOM: ", highestRowInDOM, " highestRow:", highestRow)
+        }
+      }
+    }
+    if (highestRow < highestRowInDOM) {
+      //remove rows from the bottom
+      for (let i = highestRowInDOM; i > highestRow; i--) {
+        try{
+          if (highestRow < highestRowInDOM) {
+            console.log("popping", i)
+            DataTable.popRow();
+          }
+
+        }catch{
+          console.error("error 4: i=",i," highestRowInDOM: ", highestRowInDOM, " highestRow:", highestRow)
+        }
+       
+      }
+    }
   }
 
   static getTopRow(dataTable: HTMLDivElement) {
@@ -145,22 +151,42 @@ export class DataManager {
     return rowNumber;
   }
 
-  static fetchContextWindows(index: number) {
-    //fetch the first 3 context windows
-    let contextWindows = [];
-    for (let i = 1; i <= 3; i++) {
-      contextWindows.push(DataManager.fetchMock(index + i));
-    }
-    DataManager.contextWindows = contextWindows;
-  }
-
-  static fetchMock(page: number, amount: number = 100) {
+  static fetchMock({
+    forwards = true,
+    start = 0,
+    sorting = "",
+    amount = PAGE_SIZE,
+  }: {
+    forwards?: boolean;
+    start?: number;
+    sorting?: string;
+    amount?: number;
+  }) {
     //I return 100 rows from the mock server
-    console.log((page - 1) * amount, (page - 1) * amount + amount);
-    let rows = DataManager.mockServer.slice(
-      (page - 1) * amount,
-      (page - 1) * amount + amount
-    );
-    return rows;
+    if (forwards) {
+      //we fetch the next amount after sorting entire server by the sorting string
+      let rows = this.mockServer;
+      //sort by the current index
+      if (sorting) {
+        rows.sort((a, b) => {
+          if (a[sorting] < b[sorting]) return -1;
+          if (a[sorting] > b[sorting]) return 1;
+          return 0;
+        });
+      }
+      return rows.slice(start, start + amount);
+    } else {
+      //we fetch the previous amount after sorting entire server by the sorting string
+      let rows = this.mockServer;
+      //sort by the current index
+      if (sorting) {
+        rows.sort((a, b) => {
+          if (a[sorting] < b[sorting]) return -1;
+          if (a[sorting] > b[sorting]) return 1;
+          return 0;
+        });
+      }
+      return rows.slice(Math.max(0, start - amount), start);
+    }
   }
 }
