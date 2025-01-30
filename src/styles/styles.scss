@@ -12,7 +12,6 @@
   align-items: center;
   justify-content: center;
   border-radius: 20px;
-  //animate shadow
   transition: box-shadow 0.1s ease-in-out;
 }
 
@@ -24,106 +23,186 @@
   width: min-content;
   height: 90vh;
   overflow: auto;
-  //hide scrollbar
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  // &::-webkit-scrollbar {
-  //   width: 0px;
-  //   background: transparent; /* make scrollbar transparent */
-  // }
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+    
+    &:hover {
+      background-color: #94a3b8;
+    }
+  }
+
   .header {
     display: flex;
-    position: -webkit-sticky;
     position: sticky;
     top: 0;
     margin-right: 3px;
     justify-content: space-between;
     align-items: center;
-    height: 40px;
+    height: 48px;
     width: fit-content;
-    background-color: #f5f5f5;
-    border-bottom: 1px solid #e0e0e0;
-    //rigth border
+    background-color: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+
+    .field-holder {
+      min-width: fit-content !important;
+      // transition: all 0.2s ease;
+
+      &:hover {
+        .border {
+          opacity: 1;
+        }
+        
+        .field {
+          background-color: #e2e8f0;
+        }
+      }
+    }
+
     .field {
       display: flex;
       position: relative;
       align-items: center;
       justify-content: center;
       min-width: fit-content;
-      height: 50%;
-      padding: 0 10px;
-      font-size: large;
-      font-weight: bold;
-      border-right: black 1px solid;
+      height: 100%;
+      padding: 0 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      border-right: 1px solid #e2e8f0;
+      // transition: all 0.2s ease;
+      cursor: pointer;
 
-      // outline-: 1px solid #e0e0e0;
-      //transition background-color
-      transition: background-color 0.2s ease-in-out;
-      .inner-wrapper {
-        margin-right: 20px;
+      &:hover {
+        background-color: #e2e8f0;
+        transform: translateZ(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
+
+      .inner-wrapper {
+        margin-right: 24px;
+        white-space: nowrap;
+        text-transform: capitalize;
+      }
+
       .arrow {
         position: absolute;
-        right: 3px;
-        width: 15px;
-        height: 15px;
+        right: 4px;
+        width: 20px;
         margin-right: 2px;
-        color: #00000080;
-        border-radius: 20px;
+        height: 20px;
+        color: #64748b;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
         svg {
-          stroke-width: 3;
+          stroke-width: 2.5;
+          transition: transform 0.2s ease;
         }
-        padding: 3px;
-        transition: background-color 0.2s ease-in-out;
+
         &:hover {
-          background-color: #e0e0e0;
+          background-color: #3b82f6;
+          color: white;
+          transform: scale(1.1);
+          box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+
+          svg {
+            transform: scale(1.1);
+          }
         }
-        &.active {
-          background-color: #4985eb71;
-        }
-        &.active-reverse {
-          background-color: #4985eb71;
+
+        &.active, &.active-reverse {
+          background-color: #3b82f6;
+          color: white;
+          box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
         }
       }
 
-      .field-holder {
-        min-width: fit-content !important;
-      }
       .border {
         position: absolute;
         right: -3px;
-        float: right;
-        // min-width: 1px !important;
-        // max-width: 1px !important;
         height: 100%;
         z-index: 100;
-        border: solid #ffffff00 3px;
-        margin: .1px;
-        border-radius: 50px;
-        background-color: #ffffff00;
-        //transition background-color
-        transition: all .2s ease-in-out;
+        border: solid transparent 3px;
+        margin: 0.5px;
+        border-radius: 3px;
+        opacity: 0;
+        cursor: col-resize;
+        transition: all 0.2s ease;
+
+        &.hovered{
+          background-color: #3b82f6;
+          border-color: #3b82f6;
+          opacity: 1;
+          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        } 
+
         &:hover {
-          background-color: #2590b7;
-          border-color: #2590b7;
+          background-color: #3b82f6;
+          border-color: #3b82f6;
+          opacity: 1;
+          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
       }
     }
   }
+
   .rows {
     width: fit-content;
+    
     .row {
       display: flex;
+      height: 40px;
+      // transition: all 0.2s ease;
+      border-bottom: 1px solid #f1f5f9;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #e2e8f0 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transform: translateZ(0) scale(1.002);
+      }
+
       .field {
         min-width: fit-content;
+        display: flex;
+        align-items: center;
+        color: #334155;
+        font-size: 14px;
+        // transition: all 0.2s ease;
+
         div {
-          margin: 0 10px;
+          margin: 0 16px;
+          white-space: nowrap;
         }
 
         .number {
           display: flex;
           justify-content: flex-end;
-          margin-right: 10px;
+          margin-right: 16px;
+          font-variant-numeric: tabular-nums;
+          font-feature-settings: "tnum";
         }
 
         .string {
@@ -131,10 +210,15 @@
           justify-content: flex-start;
         }
       }
-      //make them align right
     }
+
     .row:nth-child(odd) {
-      background-color: #f5f5f5;
+      background-color: #fafafa;
+      
+      &:hover {
+        background-color: #e2e8f0 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
     }
   }
 }

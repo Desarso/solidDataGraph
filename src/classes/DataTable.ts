@@ -99,6 +99,7 @@ export class DataTable {
           maxWidth = element.clientWidth;
         }
       }
+      // console.log("Field:", field)
       DataTable.changeColumnWidth(field, maxWidth);
     }
   }
@@ -221,6 +222,9 @@ export class DataTable {
     let headerElement = document.querySelector("[data-field=" + field + "]");
     headerElement?.setAttribute("style", "width:" + width + "px");
 
+
+    // console.log(elements, field, this.maps)
+
     for (let element of elements!) {
       element.style.width = width + "px";
     }
@@ -270,15 +274,12 @@ export class DataTable {
         DataTable.clearSelection();
         let newWidth =
           previousWidth + mousePosition.x - previousMousePosition.x;
-        let field = fieldDiv.querySelector(".field");
-        let fieldWidth = field.offsetWidth;
-        if (newWidth < fieldWidth - 100) {
-          newWidth = fieldWidth;
-        }
+        // console.log(newWidth);
         let elements = DataTable.maps.get(border.getAttribute("data-field"));
-        for (let element of elements) {
+        elements?.forEach(element => {
           element.style.width = newWidth + "px";
-        }
+        })
+
         previousHolderWidth = newWidth;
         fieldDiv.style.width = newWidth + "px";
       }
@@ -289,6 +290,8 @@ export class DataTable {
       previousMousePosition.x = e.clientX;
       previousMousePosition.y = e.clientY;
       previousWidth = fieldDiv.clientWidth;
+      //also make the style of border as if it was hovered
+      border.classList.add("hovered");
     });
 
     document.addEventListener("pointerup", () => {
@@ -298,10 +301,12 @@ export class DataTable {
       if (previousHolderWidth < fieldWidth) {
         fieldDiv.style.width = fieldWidth + "px";
         DataTable.changeColumnWidth(
-          fieldDiv.querySelector(".field")?.innerText as string,
+          fieldDiv.querySelector(".field")?.innerText.charAt(0).toLowerCase() + fieldDiv.querySelector(".field")?.innerText.slice(1),
           fieldWidth
         );
       }
+      let borders = document.querySelectorAll(".border");
+      borders.forEach(border => border.classList.remove("hovered"));
       DataTable.adjustColumnWidths();
       DataTable.getColumnWidths();
     });
@@ -363,7 +368,12 @@ export class DataTable {
     }
   }
 
+
+
+  //the sort function needs to do a couple of things. 
   static sortByField(field: string, order: string): void {
+
+    //function must be reimplemented, what actually needs to happen
     let rows = document.querySelectorAll(".row");
     let elements = DataTable.maps.get(field);
     let sortedElements: HTMLElement[] = [];
@@ -376,7 +386,14 @@ export class DataTable {
       row.remove();
     }
     let rowsDiv = document.querySelector(".rows");
+    DataTable.index = 0;
+    console.log(this.maps);
+    console.log(this.dataFieldsSet)
+    console.log(this.dataTypeMap)
     for (let element of sortedElements) {
+      //I want to fix the data index id
+      element.parentElement?.setAttribute("data-index", DataTable.index.toString());
+      DataTable.index++;
       rowsDiv?.appendChild(element.parentElement as HTMLElement);
     }
   }

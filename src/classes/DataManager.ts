@@ -19,7 +19,7 @@ export class DataManager {
   static mockServer: any[] = Helper.generateUsers(1000);
 
   static constructorDataTable() {
-    let data = DataManager.fetchMock({
+     let data = DataManager.fetchMock({
       forwards: true,
       start: 0,
       sorting: "id",
